@@ -1,0 +1,34 @@
+import json
+import boto3
+
+def lambda_handler(event, context):
+    
+    # TODO implement
+    UserID = event["queryStringParameters"]['UserID']
+    
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('PlayerInfo')
+    
+    response = table.get_item(
+        Key = {'UserID':UserID
+        }
+        )
+    item = response['Item']
+    losses = int(item['Loses'])
+    losses += 1
+    
+    response = table.update_item(
+        Key={
+            'UserID':UserID
+        },
+        UpdateExpression="set Loses=:l",
+        ExpressionAttributeValues={
+            ':l': str(losses)
+        },
+        ReturnValues="UPDATED_NEW"
+    )
+    
+    return {
+        'statusCode': 200,
+        'body': json.dumps(response)
+    }
