@@ -1,0 +1,23 @@
+import json
+import boto3
+
+def lambda_handler(event, context):
+    
+    # TODO implement
+    UserID = event["queryStringParameters"]['UserID']
+    Password = event["queryStringParameters"]['Password']
+    
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('PlayerInfo')
+    
+        
+    response = table.put_item(
+        Item = {'UserID':UserID,'Password':Password, 'Wins':'0', 'Loses':'0'},
+        ConditionExpression='attribute_not_exists(UserID)'
+        )
+
+    
+    return {
+        'statusCode': 200,
+        'body': json.dumps(response)
+    }
